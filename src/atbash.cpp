@@ -34,7 +34,28 @@ static wstring utf8_to_wstring(const string& str) {
     }
     return result;
 }
-
+static string wstring_to_utf8(const wstring& wstr) {
+    string result;
+    result.reserve(wstr.size() * 2);
+    for (wchar_t wc : wstr) {
+        if (wc < 0x80) {
+            result.push_back(static_cast<char>(wc));
+        } else if (wc < 0x800) {
+            result.push_back(static_cast<char>(0xC0 | ((wc >> 6) & 0x1F)));
+            result.push_back(static_cast<char>(0x80 | (wc & 0x3F)));
+        } else if (wc < 0x10000) {
+            result.push_back(static_cast<char>(0xE0 | ((wc >> 12) & 0x0F)));
+            result.push_back(static_cast<char>(0x80 | ((wc >> 6) & 0x3F)));
+            result.push_back(static_cast<char>(0x80 | (wc & 0x3F)));
+        } else {
+            result.push_back(static_cast<char>(0xF0 | ((wc >> 18) & 0x07)));
+            result.push_back(static_cast<char>(0x80 | ((wc >> 12) & 0x3F)));
+            result.push_back(static_cast<char>(0x80 | ((wc >> 6) & 0x3F)));
+            result.push_back(static_cast<char>(0x80 | (wc & 0x3F)));
+        }
+    }
+    return result;
+}
 
 string decryptAtbash(const string& ciphertext) {
     return encryptAtbash(ciphertext);
