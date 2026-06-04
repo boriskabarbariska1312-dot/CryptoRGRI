@@ -29,8 +29,8 @@ std::string decryptRC4(std::string ciphertext);
 std::string encryptBlowfish(std::string text);
 std::string decryptBlowfish(std::string ciphertext);
 
-std::string encryptAtbash(std::string text);
-std::string decryptAtbash(std::string ciphertext);
+std::string encryptAtbash(const std::string& text);
+std::string decryptAtbash(const std::string& ciphertext);
 
 std::string encryptGronsfeld(std::string text);
 std::string decryptGronsfeld(std::string ciphertext);
