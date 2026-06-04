@@ -57,6 +57,46 @@ static string wstring_to_utf8(const wstring& wstr) {
     return result;
 }
 
+string encryptAtbash(const string& text) {
+    wstring wtext = utf8_to_wstring(text);
+    
+    for (size_t i = 0; i < wtext.length(); ++i) {
+        wchar_t ch = wtext[i];
+        
+        if (ch >= L'a' && ch <= L'z') {
+            wtext[i] = L'z' - (ch - L'a');
+        } else if (ch >= L'A' && ch <= L'Z') {
+            wtext[i] = L'Z' - (ch - L'A');
+        }
+        else if ((ch >= L'а' && ch <= L'е') || ch == L'ё' || (ch >= L'ж' && ch <= L'я')) {
+            int idx = 0;
+            if (ch >= L'а' && ch <= L'е') idx = ch - L'а';
+            else if (ch == L'ё') idx = 6;
+            else idx = ch - L'ж' + 7;
+
+            int new_idx = 32 - idx;
+
+            if (new_idx <= 5) wtext[i] = L'а' + new_idx;
+            else if (new_idx == 6) wtext[i] = L'ё';
+            else wtext[i] = L'ж' + (new_idx - 7);
+        } 
+        else if ((ch >= L'А' && ch <= L'Е') || ch == L'Ё' || (ch >= L'Ж' && ch <= L'Я')) {
+            int idx = 0;
+            if (ch >= L'А' && ch <= L'Е') idx = ch - L'А';
+            else if (ch == L'Ё') idx = 6;
+            else idx = ch - L'Ж' + 7;
+
+            int new_idx = 32 - idx;
+
+            if (new_idx <= 5) wtext[i] = L'А' + new_idx;
+            else if (new_idx == 6) wtext[i] = L'Ё';
+            else wtext[i] = L'Ж' + (new_idx - 7);
+        }
+    }
+    
+    return wstring_to_utf8(wtext);
+}
+
 string decryptAtbash(const string& ciphertext) {
     return encryptAtbash(ciphertext);
 }
