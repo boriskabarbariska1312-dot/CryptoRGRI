@@ -1,38 +1,32 @@
 #ifndef CRYPTO_H
 #define CRYPTO_H
 
-#include <string>
+#include <cstdint>
+#include <cstddef>
 
-// Наш любимый enum переезжает сюда
-enum class Proto {
-    Unknown,
-    MTProto,
-    SHA256,
-    RC4,
-    Blowfish,
-    Atbash,
-    Gronsfeld
+struct ConstBuffer {
+    const uint8_t* data;
+    size_t size;
 };
 
-// Прототипы функций (только "объявления", без самого кода)
-std::string getProtoName(Proto ChoicedProto);
+struct MutBuffer {
+    uint8_t* data;
+    size_t size;
+};
 
-std::string encryptMTProto(std::string text);
-std::string decryptMTProto(std::string ciphertext);
+struct AlgorithmInfo {
+    const char* algorithm_name;
+    size_t key_size;
+};
 
-std::string encryptSHA256(std::string text);
-std::string deHash(std::string HashText);
+extern "C" {
+    const AlgorithmInfo* get_algorithm_info();
+    size_t get_output_size(size_t input_size, int operation_type);
+    
+    int encrypt(ConstBuffer key, ConstBuffer input, MutBuffer* output);
+    int decrypt(ConstBuffer key, ConstBuffer input, MutBuffer* output);
 
-std::string encryptRC4(std::string text);
-std::string decryptRC4(std::string ciphertext);
+    int encrypt_with_iv(ConstBuffer key, ConstBuffer iv, ConstBuffer input, MutBuffer* output);
+}
 
-std::string encryptBlowfish(std::string text);
-std::string decryptBlowfish(std::string ciphertext);
-
-std::string encryptAtbash(const std::string& text);
-std::string decryptAtbash(const std::string& ciphertext);
-
-std::string encryptGronsfeld(std::string text);
-std::string decryptGronsfeld(std::string ciphertext);
-
-#endif // CRYPTO_H
+#endif

@@ -1,0 +1,1 @@
+/usr/bin/c++  -arch arm64 -dynamiclib -Wl,-headerpad_max_install_names -o libgronsfeld.dylib -install_name @rpath/libgronsfeld.dylib CMakeFiles/gronsfeld.dir/gronsfeld.cpp.o

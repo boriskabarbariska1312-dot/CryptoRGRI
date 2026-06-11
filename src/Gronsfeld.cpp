@@ -1,37 +1,42 @@
 #include "crypto.h"
-#include <iostream>
 
-using namespace std;
-
-string encryptGronsfeld(string text){
-// здесь будет математика шифрования Gronsfeld
-return "Зашифрованный_Gronsfeld";
+extern "C" const AlgorithmInfo* get_algorithm_info() {
+    static const AlgorithmInfo INFO = {"Gronsfeld", 0}; 
+    return &INFO;
 }
 
-string decryptGronsfeld(string ciphertext){
-// здесь будет математика расшифрования Gronsfeld
-return "Расшиврованный Gronsfeld";
+extern "C" size_t get_output_size(size_t input_size, int operation_type) {
+    (void)operation_type;
+    return input_size; 
 }
 
+extern "C" int encrypt(ConstBuffer key, ConstBuffer input, MutBuffer* output) {
+    if (key.size == 0 || output->size < input.size) return 1;
 
-// БЛОК ОТЛАДКИ (Раскомментируй строку ниже, чтобы протестировать ТОЛЬКО этот файл)
-//
-// Если строка #define DEBUG_ATBASH закомментирована, компилятор при сборке всего 
-// проекта просто игнорирует код внутри #ifdef и #endif
-//
-// #define DEBUG_ATBASH 
-
-#ifdef DEBUG_ATBASH
-int main() {
-    cout << "--- Отладка модуля Gronsfeld ---" << endl;
-    string test;
-    cin >> test;
-    string enc = encryptGronsfeld(test);
-    cout << "Тест шифра: " << enc << endl;
-    cout << "Тест дешифра: " << decryptGronsfeld(enc) << endl;
+    for (size_t i = 0; i < input.size; ++i) {
+        uint8_t key_byte = key.data[i % key.size];
+        uint8_t shift = (key_byte >= '0' && key_byte <= '9') ? (key_byte - '0') : (key_byte % 10);
+        output->data[i] = static_cast<uint8_t>((input.data[i] + shift) % 256);
+    }
+    
+    output->size = input.size;
     return 0;
 }
-#endif
 
+extern "C" int decrypt(ConstBuffer key, ConstBuffer input, MutBuffer* output) {
+    if (key.size == 0 || output->size < input.size) return 1;
 
+    for (size_t i = 0; i < input.size; ++i) {
+        uint8_t key_byte = key.data[i % key.size];
+        uint8_t shift = (key_byte >= '0' && key_byte <= '9') ? (key_byte - '0') : (key_byte % 10);
+        output->data[i] = static_cast<uint8_t>((input.data[i] - shift + 256) % 256);
+    }
+    
+    output->size = input.size;
+    return 0;
+}
 
+extern "C" int encrypt_with_iv(ConstBuffer key, ConstBuffer iv, ConstBuffer input, MutBuffer* output) {
+    (void)iv;
+    return encrypt(key, input, output);
+}
