@@ -23,24 +23,37 @@
     #define LOAD_LIB(path) dlopen(path.c_str(), RTLD_LAZY)
     #define GET_FUNC(handle, name) dlsym(handle, name)
     #define CLOSE_LIB(handle) dlclose(handle)
-    #define LIB_EXT ".so"
+    #if defined(__APPLE__)
+        #define LIB_EXT ".dylib"
+    #else
+        #define LIB_EXT ".so"
+    #endif
 #endif
 
+struct LibraryGuard {
+    LIB_HANDLE handle = nullptr;
+    LibraryGuard(LIB_HANDLE h) : handle(h) {}
+    ~LibraryGuard() {
+        if (handle) {
+            CLOSE_LIB(handle);
+        }
+    }
+    // Запрещаем копирование во избежание двойного освобождения ресурса
+    LibraryGuard(const LibraryGuard&) = delete;
+    LibraryGuard& operator=(const LibraryGuard&) = delete;
+};
+
 #include "crypto.h"
-
 using namespace std;
-
-const uint64_t CHUNK_SIZE = 65536;
 
 const vector<string> SUPPORTED_ALGORITHMS = {"gronsfeld", "atbash", "rc4", "blowfish"};
 
 void safe_clear(uint8_t* ptr, uint64_t size) {
-    if (!ptr) return;
+    if (!ptr || size == 0) return;
 #if defined(_WIN32)
     SecureZeroMemory(ptr, size);
 #else
     std::memset(ptr, 0, size);
-    // Ассемблерный барьер памяти для предотвращения удаления вызова компилятором при оптимизации
     asm volatile("" ::: "memory");
 #endif
 }
@@ -98,7 +111,8 @@ LIB_HANDLE load_crypto_library(const string& algo_name) {
 #if defined(_WIN32)
     lib_path = algo_name + LIB_EXT;
 #else
-    lib_path = "./lib" + algo_name + LIB_EXT;
+
+    lib_path = "lib" + algo_name + LIB_EXT; 
 #endif
     LIB_HANDLE handle = LOAD_LIB(lib_path);
     if (!handle) throw runtime_error("Ошибка загрузки библиотеки: " + lib_path);
@@ -109,54 +123,36 @@ int process_stream(istream& in_stream, ostream& out_stream, int op_type, ConstBu
                    size_t (*get_output_size_func)(size_t, int), 
                    int (*crypto_func)(ConstBuffer, ConstBuffer, MutBuffer*)) {
     
-    size_t effective_chunk_size = CHUNK_SIZE;
-    if (key_buf.size > 0) {
-        // Выравнивание размера блока под размер ключа для корректной работы потоковых шифров
-        effective_chunk_size = (CHUNK_SIZE / key_buf.size) * key_buf.size;
-        if (effective_chunk_size == 0) effective_chunk_size = key_buf.size;
-    }
-
-    size_t read_block_size = effective_chunk_size;
-    if (op_type == 2) {
-        read_block_size = get_output_size_func(effective_chunk_size, 1);
-    }
-
-    vector<uint8_t> input_buffer(read_block_size);
-    // Исправленный вызов функции без использования удаленных флагов потока
-    size_t initial_out_size = get_output_size_func(read_block_size, op_type);
-    vector<uint8_t> output_buffer(initial_out_size);
-    int crypto_status = 0;
-
-    while (true) {
-        in_stream.read(reinterpret_cast<char*>(input_buffer.data()), read_block_size);
-        size_t bytes_read = static_cast<size_t>(in_stream.gcount());
-        
-        if (bytes_read == 0) break; 
-
-        ConstBuffer input_chunk = { input_buffer.data(), bytes_read };
-        size_t expected_out_size = get_output_size_func(bytes_read, op_type);
-        
-        if (expected_out_size > output_buffer.size()) output_buffer.resize(expected_out_size);
-        MutBuffer output_chunk = { output_buffer.data(), output_buffer.size() };
-
-        crypto_status = crypto_func(key_buf, input_chunk, &output_chunk);
-
-        if (crypto_status != 0) {
-            cerr << "Ошибка в динамической библиотеке при обработке данных\n";
-            break;
-        }
-
-        if (output_chunk.size > 0) {
-            out_stream.write(reinterpret_cast<const char*>(output_chunk.data), output_chunk.size);
-        }
-
-        in_stream.peek();
-        if (in_stream.eof() || !in_stream.good()) break;
-    }
+    vector<uint8_t> input_buffer;
+    char buf[65536];
     
-    // Гарантированная очистка векторов с критическими данными перед выходом из функции
+    while (in_stream.read(buf, sizeof(buf))) {
+        input_buffer.insert(input_buffer.end(), buf, buf + in_stream.gcount());
+    }
+    if (in_stream.gcount() > 0) {
+        input_buffer.insert(input_buffer.end(), buf, buf + in_stream.gcount());
+    }
+
+    size_t input_size = input_buffer.size();
+    if (input_size == 0) return 0;
+
+    ConstBuffer input_chunk = { input_buffer.data(), input_size };
+    size_t expected_out_size = get_output_size_func(input_size, op_type);
+    
+    vector<uint8_t> output_buffer(expected_out_size);
+    MutBuffer output_chunk = { output_buffer.data(), output_buffer.size() };
+
+    int crypto_status = crypto_func(key_buf, input_chunk, &output_chunk);
+
+    if (crypto_status != 0) {
+        cerr << "Ошибка в динамической библиотеке при обработке данных\n";
+    } else if (output_chunk.size > 0) {
+        out_stream.write(reinterpret_cast<const char*>(output_chunk.data), output_chunk.size);
+    }
+
     safe_clear(input_buffer.data(), input_buffer.size());
     safe_clear(output_buffer.data(), output_buffer.size());
+    
     return crypto_status;
 }
 
@@ -200,27 +196,29 @@ int main(int argc, char* argv[]) {
             throw runtime_error("Неподдерживаемый режим '" + mode_str + "'");
         }
 
-        if ((mode_str == "encrypt" || mode_str == "decrypt") && key_path.empty()) {
-            throw runtime_error("Отсутствует обязательный аргумент: путь к файлу ключа (-k, --key)");
-        }
+ 
+        LIB_HANDLE raw_handle = load_crypto_library(algo_name);
+        LibraryGuard guard(raw_handle); // <--- Оборачиваем в RAII-хранитель. CLOSE_LIB больше вызывать вручную не нужно!
 
-        LIB_HANDLE handle = load_crypto_library(algo_name);
-
-        auto get_algo_info = (const AlgorithmInfo* (*)())GET_FUNC(handle, "get_algorithm_info");
-        auto get_output_size_func = (size_t (*)(size_t, int))GET_FUNC(handle, "get_output_size");
-        auto encrypt_func = (int (*)(ConstBuffer, ConstBuffer, MutBuffer*))GET_FUNC(handle, "encrypt");
-        auto decrypt_func = (int (*)(ConstBuffer, ConstBuffer, MutBuffer*))GET_FUNC(handle, "decrypt");
+        // Все вызовы функций GET_FUNC теперь делаем через raw_handle
+        auto get_algo_info = (const AlgorithmInfo* (*)())GET_FUNC(raw_handle, "get_algorithm_info");
+        auto get_output_size_func = (size_t (*)(size_t, int))GET_FUNC(raw_handle, "get_output_size");
+        auto encrypt_func = (int (*)(ConstBuffer, ConstBuffer, MutBuffer*))GET_FUNC(raw_handle, "encrypt");
+        auto decrypt_func = (int (*)(ConstBuffer, ConstBuffer, MutBuffer*))GET_FUNC(raw_handle, "decrypt");
 
         if (!get_algo_info || !get_output_size_func || !encrypt_func || !decrypt_func) {
-            CLOSE_LIB(handle);
+            // CLOSE_LIB(raw_handle);  <--- ЭТУ СТРОКУ УДАЛЯЕМ, деструктор класса LibraryGuard вызовет CLOSE_LIB автоматически
             throw runtime_error("Некорректная библиотека: отсутствуют требуемые функции");
         }
 
+
         const AlgorithmInfo* info = get_algo_info();
+        if ((mode_str == "encrypt" || mode_str == "decrypt") && key_path.empty() && info->key_size > 0) {
+            throw runtime_error("Отсутствует обязательный аргумент: путь к файлу ключа (-k, --key)");
+        }
 
         if (mode_str == "generate-key") {
             if (save_key_path.empty()) {
-                CLOSE_LIB(handle);
                 throw runtime_error("Не указан путь для сохранения ключа");
             }
             uint64_t k_size = info->key_size == 0 ? 16 : info->key_size; 
@@ -241,7 +239,6 @@ int main(int argc, char* argv[]) {
             if (save_key_path != "-") cout << "\nКлюч успешно сгенерирован\n";
             
             safe_clear(new_key.data(), new_key.size());
-            CLOSE_LIB(handle);
             return 0;
         }
 
@@ -254,7 +251,6 @@ int main(int argc, char* argv[]) {
             } else {
                 ifstream kf(key_path, ios::binary | ios::ate);
                 if (!kf.is_open()) {
-                    CLOSE_LIB(handle);
                     throw runtime_error("Не удалось открыть файл ключа");
                 }
                 streamsize size = kf.tellg();
@@ -283,7 +279,6 @@ int main(int argc, char* argv[]) {
         if (!input_path.empty() && input_path != "-") {
             in_file.open(input_path, ios::binary);
             if (!in_file.is_open()) {
-                CLOSE_LIB(handle);
                 safe_clear(key_data.data(), key_data.size());
                 throw runtime_error("Ошибка открытия входного файла");
             }
@@ -293,7 +288,6 @@ int main(int argc, char* argv[]) {
         if (!output_path.empty() && output_path != "-") {
             out_file.open(output_path, ios::binary);
             if (!out_file.is_open()) {
-                CLOSE_LIB(handle);
                 safe_clear(key_data.data(), key_data.size());
                 throw runtime_error("Ошибка открытия выходного файла");
             }
@@ -308,7 +302,6 @@ int main(int argc, char* argv[]) {
 
         if (in_file.is_open()) in_file.close();
         if (out_file.is_open()) out_file.close();
-        CLOSE_LIB(handle);
 
         return crypto_status;
     } catch (const exception& e) {
