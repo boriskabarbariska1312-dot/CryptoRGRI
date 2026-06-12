@@ -1,3 +1,4 @@
+#include "crypto.h"
 #include <cstdint>
 #include <cstddef>
 #include <cstring>
