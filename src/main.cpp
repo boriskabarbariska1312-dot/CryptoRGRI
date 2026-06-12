@@ -46,7 +46,7 @@ struct LibraryGuard {
 #include "crypto.h"
 using namespace std;
 
-const vector<string> SUPPORTED_ALGORITHMS = {"gronsfeld", "atbash", "rc4", "blowfish"};
+const vector<string> SUPPORTED_ALGORITHMS = {"gronsfeld", "atbash", "rc4", "blowfish", "mtproto"};
 
 void safe_clear(uint8_t* ptr, uint64_t size) {
     if (!ptr || size == 0) return;
