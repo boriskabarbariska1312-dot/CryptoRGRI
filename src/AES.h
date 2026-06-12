@@ -9,6 +9,8 @@ public:
     // Конструктор принимает 32-байтный ключ и сразу запускает Key Expansion
     AES256(const std::vector<uint8_t>& key);
 
+    // Чтобы Зафиксировать метод прослойку для аеса любимого
+    uint8_t encryptBlock_gmul(uint8_t a, uint8_t b);
     // Шифрует один блок (16 байт) in-place (прямо в переданном массиве)
     void encryptBlock(uint8_t* block);
 
