@@ -73,4 +73,8 @@ int decrypt(ConstBuffer key, ConstBuffer input, MutBuffer* output) {
     return 0;
 }
 
+extern "C" int encrypt_with_iv(ConstBuffer key, ConstBuffer iv, ConstBuffer input, MutBuffer* output) {
+    (void)iv; // Игнорируем IV, так как RC4 его не использует
+    return encrypt(key, input, output);
+}
 }
