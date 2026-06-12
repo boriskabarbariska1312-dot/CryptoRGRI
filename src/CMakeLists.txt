@@ -13,6 +13,8 @@ endif()
 
 add_library(gronsfeld SHARED gronsfeld.cpp)
 add_library(atbash SHARED atbash.cpp)
+add_library(rc4 SHARED RC4.cpp)
+add_library(blowfish SHARED Blowfish.cpp)
 
 add_executable(cryptum main.cpp)
 add_executable(cryptotests tests.cpp)

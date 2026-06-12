@@ -32,7 +32,7 @@ using namespace std;
 
 const uint64_t CHUNK_SIZE = 65536;
 
-const vector<string> SUPPORTED_ALGORITHMS = {"gronsfeld", "atbash"};
+const vector<string> SUPPORTED_ALGORITHMS = {"gronsfeld", "atbash", "rc4", "blowfish"};
 
 void safe_clear(uint8_t* ptr, uint64_t size) {
     if (!ptr) return;
