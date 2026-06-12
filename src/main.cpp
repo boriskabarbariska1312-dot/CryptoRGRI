@@ -198,8 +198,8 @@ int main(int argc, char* argv[]) {
 
  
         LIB_HANDLE raw_handle = load_crypto_library(algo_name);
-        LibraryGuard guard(raw_handle); // <--- Оборачиваем в RAII-хранитель. CLOSE_LIB больше вызывать вручную не нужно!
-
+        LibraryGuard guard(raw_handle); 
+        
         // Все вызовы функций GET_FUNC теперь делаем через raw_handle
         auto get_algo_info = (const AlgorithmInfo* (*)())GET_FUNC(raw_handle, "get_algorithm_info");
         auto get_output_size_func = (size_t (*)(size_t, int))GET_FUNC(raw_handle, "get_output_size");
@@ -207,7 +207,6 @@ int main(int argc, char* argv[]) {
         auto decrypt_func = (int (*)(ConstBuffer, ConstBuffer, MutBuffer*))GET_FUNC(raw_handle, "decrypt");
 
         if (!get_algo_info || !get_output_size_func || !encrypt_func || !decrypt_func) {
-            // CLOSE_LIB(raw_handle);  <--- ЭТУ СТРОКУ УДАЛЯЕМ, деструктор класса LibraryGuard вызовет CLOSE_LIB автоматически
             throw runtime_error("Некорректная библиотека: отсутствуют требуемые функции");
         }
 

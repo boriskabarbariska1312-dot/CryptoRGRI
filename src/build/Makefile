@@ -143,6 +143,58 @@ atbash/fast:
 .PHONY : atbash/fast
 
 #=============================================================================
+# Target rules for targets named rc4
+
+# Build rule for target.
+rc4: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 rc4
+.PHONY : rc4
+
+# fast build rule for target.
+rc4/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rc4.dir/build.make CMakeFiles/rc4.dir/build
+.PHONY : rc4/fast
+
+#=============================================================================
+# Target rules for targets named blowfish
+
+# Build rule for target.
+blowfish: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 blowfish
+.PHONY : blowfish
+
+# fast build rule for target.
+blowfish/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/blowfish.dir/build.make CMakeFiles/blowfish.dir/build
+.PHONY : blowfish/fast
+
+#=============================================================================
+# Target rules for targets named sha256
+
+# Build rule for target.
+sha256: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 sha256
+.PHONY : sha256
+
+# fast build rule for target.
+sha256/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sha256.dir/build.make CMakeFiles/sha256.dir/build
+.PHONY : sha256/fast
+
+#=============================================================================
+# Target rules for targets named mtproto
+
+# Build rule for target.
+mtproto: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mtproto
+.PHONY : mtproto
+
+# fast build rule for target.
+mtproto/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mtproto.dir/build.make CMakeFiles/mtproto.dir/build
+.PHONY : mtproto/fast
+
+#=============================================================================
 # Target rules for targets named cryptum
 
 # Build rule for target.
@@ -167,6 +219,129 @@ cryptotests: cmake_check_build_system
 cryptotests/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/cryptotests.dir/build.make CMakeFiles/cryptotests.dir/build
 .PHONY : cryptotests/fast
+
+AES256.o: AES256.cpp.o
+.PHONY : AES256.o
+
+# target to build an object file
+AES256.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mtproto.dir/build.make CMakeFiles/mtproto.dir/AES256.cpp.o
+.PHONY : AES256.cpp.o
+
+AES256.i: AES256.cpp.i
+.PHONY : AES256.i
+
+# target to preprocess a source file
+AES256.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mtproto.dir/build.make CMakeFiles/mtproto.dir/AES256.cpp.i
+.PHONY : AES256.cpp.i
+
+AES256.s: AES256.cpp.s
+.PHONY : AES256.s
+
+# target to generate assembly for a file
+AES256.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mtproto.dir/build.make CMakeFiles/mtproto.dir/AES256.cpp.s
+.PHONY : AES256.cpp.s
+
+Blowfish.o: Blowfish.cpp.o
+.PHONY : Blowfish.o
+
+# target to build an object file
+Blowfish.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/blowfish.dir/build.make CMakeFiles/blowfish.dir/Blowfish.cpp.o
+.PHONY : Blowfish.cpp.o
+
+Blowfish.i: Blowfish.cpp.i
+.PHONY : Blowfish.i
+
+# target to preprocess a source file
+Blowfish.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/blowfish.dir/build.make CMakeFiles/blowfish.dir/Blowfish.cpp.i
+.PHONY : Blowfish.cpp.i
+
+Blowfish.s: Blowfish.cpp.s
+.PHONY : Blowfish.s
+
+# target to generate assembly for a file
+Blowfish.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/blowfish.dir/build.make CMakeFiles/blowfish.dir/Blowfish.cpp.s
+.PHONY : Blowfish.cpp.s
+
+MTProto.o: MTProto.cpp.o
+.PHONY : MTProto.o
+
+# target to build an object file
+MTProto.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mtproto.dir/build.make CMakeFiles/mtproto.dir/MTProto.cpp.o
+.PHONY : MTProto.cpp.o
+
+MTProto.i: MTProto.cpp.i
+.PHONY : MTProto.i
+
+# target to preprocess a source file
+MTProto.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mtproto.dir/build.make CMakeFiles/mtproto.dir/MTProto.cpp.i
+.PHONY : MTProto.cpp.i
+
+MTProto.s: MTProto.cpp.s
+.PHONY : MTProto.s
+
+# target to generate assembly for a file
+MTProto.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mtproto.dir/build.make CMakeFiles/mtproto.dir/MTProto.cpp.s
+.PHONY : MTProto.cpp.s
+
+RC4.o: RC4.cpp.o
+.PHONY : RC4.o
+
+# target to build an object file
+RC4.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rc4.dir/build.make CMakeFiles/rc4.dir/RC4.cpp.o
+.PHONY : RC4.cpp.o
+
+RC4.i: RC4.cpp.i
+.PHONY : RC4.i
+
+# target to preprocess a source file
+RC4.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rc4.dir/build.make CMakeFiles/rc4.dir/RC4.cpp.i
+.PHONY : RC4.cpp.i
+
+RC4.s: RC4.cpp.s
+.PHONY : RC4.s
+
+# target to generate assembly for a file
+RC4.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rc4.dir/build.make CMakeFiles/rc4.dir/RC4.cpp.s
+.PHONY : RC4.cpp.s
+
+SHA256.o: SHA256.cpp.o
+.PHONY : SHA256.o
+
+# target to build an object file
+SHA256.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sha256.dir/build.make CMakeFiles/sha256.dir/SHA256.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mtproto.dir/build.make CMakeFiles/mtproto.dir/SHA256.cpp.o
+.PHONY : SHA256.cpp.o
+
+SHA256.i: SHA256.cpp.i
+.PHONY : SHA256.i
+
+# target to preprocess a source file
+SHA256.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sha256.dir/build.make CMakeFiles/sha256.dir/SHA256.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mtproto.dir/build.make CMakeFiles/mtproto.dir/SHA256.cpp.i
+.PHONY : SHA256.cpp.i
+
+SHA256.s: SHA256.cpp.s
+.PHONY : SHA256.s
+
+# target to generate assembly for a file
+SHA256.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sha256.dir/build.make CMakeFiles/sha256.dir/SHA256.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mtproto.dir/build.make CMakeFiles/mtproto.dir/SHA256.cpp.s
+.PHONY : SHA256.cpp.s
 
 atbash.o: atbash.cpp.o
 .PHONY : atbash.o
@@ -273,9 +448,28 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... atbash"
+	@echo "... blowfish"
 	@echo "... cryptotests"
 	@echo "... cryptum"
 	@echo "... gronsfeld"
+	@echo "... mtproto"
+	@echo "... rc4"
+	@echo "... sha256"
+	@echo "... AES256.o"
+	@echo "... AES256.i"
+	@echo "... AES256.s"
+	@echo "... Blowfish.o"
+	@echo "... Blowfish.i"
+	@echo "... Blowfish.s"
+	@echo "... MTProto.o"
+	@echo "... MTProto.i"
+	@echo "... MTProto.s"
+	@echo "... RC4.o"
+	@echo "... RC4.i"
+	@echo "... RC4.s"
+	@echo "... SHA256.o"
+	@echo "... SHA256.i"
+	@echo "... SHA256.s"
 	@echo "... atbash.o"
 	@echo "... atbash.i"
 	@echo "... atbash.s"

@@ -5,7 +5,7 @@
 
 static const AlgorithmInfo RC4_INFO = {
     "rc4",
-    16 // Дефолтный размер ключа (128 бит)
+    16 
 };
 
 static void secure_wipe(void* ptr, size_t size) {
@@ -21,6 +21,7 @@ const AlgorithmInfo* get_algorithm_info() {
 }
 
 size_t get_output_size(size_t input_size, int operation_type) {
+    (void)operation_type; 
     return input_size;
 }
 

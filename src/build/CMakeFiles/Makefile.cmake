@@ -116,6 +116,10 @@ set(CMAKE_MAKEFILE_PRODUCTS
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/gronsfeld.dir/DependInfo.cmake"
   "CMakeFiles/atbash.dir/DependInfo.cmake"
+  "CMakeFiles/rc4.dir/DependInfo.cmake"
+  "CMakeFiles/blowfish.dir/DependInfo.cmake"
+  "CMakeFiles/sha256.dir/DependInfo.cmake"
+  "CMakeFiles/mtproto.dir/DependInfo.cmake"
   "CMakeFiles/cryptum.dir/DependInfo.cmake"
   "CMakeFiles/cryptotests.dir/DependInfo.cmake"
   )

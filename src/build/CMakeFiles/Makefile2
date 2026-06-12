@@ -65,6 +65,10 @@ CMAKE_BINARY_DIR = /Users/timurkabilov/Desktop/CryptoRGRI/src/build
 # The main recursive "all" target.
 all: CMakeFiles/gronsfeld.dir/all
 all: CMakeFiles/atbash.dir/all
+all: CMakeFiles/rc4.dir/all
+all: CMakeFiles/blowfish.dir/all
+all: CMakeFiles/sha256.dir/all
+all: CMakeFiles/mtproto.dir/all
 all: CMakeFiles/cryptum.dir/all
 all: CMakeFiles/cryptotests.dir/all
 .PHONY : all
@@ -72,6 +76,10 @@ all: CMakeFiles/cryptotests.dir/all
 # The main recursive "codegen" target.
 codegen: CMakeFiles/gronsfeld.dir/codegen
 codegen: CMakeFiles/atbash.dir/codegen
+codegen: CMakeFiles/rc4.dir/codegen
+codegen: CMakeFiles/blowfish.dir/codegen
+codegen: CMakeFiles/sha256.dir/codegen
+codegen: CMakeFiles/mtproto.dir/codegen
 codegen: CMakeFiles/cryptum.dir/codegen
 codegen: CMakeFiles/cryptotests.dir/codegen
 .PHONY : codegen
@@ -83,6 +91,10 @@ preinstall:
 # The main recursive "clean" target.
 clean: CMakeFiles/gronsfeld.dir/clean
 clean: CMakeFiles/atbash.dir/clean
+clean: CMakeFiles/rc4.dir/clean
+clean: CMakeFiles/blowfish.dir/clean
+clean: CMakeFiles/sha256.dir/clean
+clean: CMakeFiles/mtproto.dir/clean
 clean: CMakeFiles/cryptum.dir/clean
 clean: CMakeFiles/cryptotests.dir/clean
 .PHONY : clean
@@ -94,7 +106,7 @@ clean: CMakeFiles/cryptotests.dir/clean
 CMakeFiles/gronsfeld.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gronsfeld.dir/build.make CMakeFiles/gronsfeld.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gronsfeld.dir/build.make CMakeFiles/gronsfeld.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=7,8 "Built target gronsfeld"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=9,10 "Built target gronsfeld"
 .PHONY : CMakeFiles/gronsfeld.dir/all
 
 # Build rule for subdir invocation for target.
@@ -111,7 +123,7 @@ gronsfeld: CMakeFiles/gronsfeld.dir/rule
 # codegen rule for target.
 CMakeFiles/gronsfeld.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gronsfeld.dir/build.make CMakeFiles/gronsfeld.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=7,8 "Finished codegen for target gronsfeld"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=9,10 "Finished codegen for target gronsfeld"
 .PHONY : CMakeFiles/gronsfeld.dir/codegen
 
 # clean rule for target.
@@ -152,13 +164,141 @@ CMakeFiles/atbash.dir/clean:
 .PHONY : CMakeFiles/atbash.dir/clean
 
 #=============================================================================
+# Target rules for target CMakeFiles/rc4.dir
+
+# All Build rule for target.
+CMakeFiles/rc4.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rc4.dir/build.make CMakeFiles/rc4.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rc4.dir/build.make CMakeFiles/rc4.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=15,16 "Built target rc4"
+.PHONY : CMakeFiles/rc4.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/rc4.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/rc4.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles 0
+.PHONY : CMakeFiles/rc4.dir/rule
+
+# Convenience name for target.
+rc4: CMakeFiles/rc4.dir/rule
+.PHONY : rc4
+
+# codegen rule for target.
+CMakeFiles/rc4.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rc4.dir/build.make CMakeFiles/rc4.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=15,16 "Finished codegen for target rc4"
+.PHONY : CMakeFiles/rc4.dir/codegen
+
+# clean rule for target.
+CMakeFiles/rc4.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rc4.dir/build.make CMakeFiles/rc4.dir/clean
+.PHONY : CMakeFiles/rc4.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/blowfish.dir
+
+# All Build rule for target.
+CMakeFiles/blowfish.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/blowfish.dir/build.make CMakeFiles/blowfish.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/blowfish.dir/build.make CMakeFiles/blowfish.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=3,4 "Built target blowfish"
+.PHONY : CMakeFiles/blowfish.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/blowfish.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/blowfish.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles 0
+.PHONY : CMakeFiles/blowfish.dir/rule
+
+# Convenience name for target.
+blowfish: CMakeFiles/blowfish.dir/rule
+.PHONY : blowfish
+
+# codegen rule for target.
+CMakeFiles/blowfish.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/blowfish.dir/build.make CMakeFiles/blowfish.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=3,4 "Finished codegen for target blowfish"
+.PHONY : CMakeFiles/blowfish.dir/codegen
+
+# clean rule for target.
+CMakeFiles/blowfish.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/blowfish.dir/build.make CMakeFiles/blowfish.dir/clean
+.PHONY : CMakeFiles/blowfish.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/sha256.dir
+
+# All Build rule for target.
+CMakeFiles/sha256.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sha256.dir/build.make CMakeFiles/sha256.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sha256.dir/build.make CMakeFiles/sha256.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=17,18 "Built target sha256"
+.PHONY : CMakeFiles/sha256.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/sha256.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/sha256.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles 0
+.PHONY : CMakeFiles/sha256.dir/rule
+
+# Convenience name for target.
+sha256: CMakeFiles/sha256.dir/rule
+.PHONY : sha256
+
+# codegen rule for target.
+CMakeFiles/sha256.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sha256.dir/build.make CMakeFiles/sha256.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=17,18 "Finished codegen for target sha256"
+.PHONY : CMakeFiles/sha256.dir/codegen
+
+# clean rule for target.
+CMakeFiles/sha256.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sha256.dir/build.make CMakeFiles/sha256.dir/clean
+.PHONY : CMakeFiles/sha256.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/mtproto.dir
+
+# All Build rule for target.
+CMakeFiles/mtproto.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mtproto.dir/build.make CMakeFiles/mtproto.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mtproto.dir/build.make CMakeFiles/mtproto.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=11,12,13,14 "Built target mtproto"
+.PHONY : CMakeFiles/mtproto.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/mtproto.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles 4
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/mtproto.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles 0
+.PHONY : CMakeFiles/mtproto.dir/rule
+
+# Convenience name for target.
+mtproto: CMakeFiles/mtproto.dir/rule
+.PHONY : mtproto
+
+# codegen rule for target.
+CMakeFiles/mtproto.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mtproto.dir/build.make CMakeFiles/mtproto.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=11,12,13,14 "Finished codegen for target mtproto"
+.PHONY : CMakeFiles/mtproto.dir/codegen
+
+# clean rule for target.
+CMakeFiles/mtproto.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mtproto.dir/build.make CMakeFiles/mtproto.dir/clean
+.PHONY : CMakeFiles/mtproto.dir/clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/cryptum.dir
 
 # All Build rule for target.
 CMakeFiles/cryptum.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/cryptum.dir/build.make CMakeFiles/cryptum.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/cryptum.dir/build.make CMakeFiles/cryptum.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=5,6 "Built target cryptum"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=7,8 "Built target cryptum"
 .PHONY : CMakeFiles/cryptum.dir/all
 
 # Build rule for subdir invocation for target.
@@ -175,7 +315,7 @@ cryptum: CMakeFiles/cryptum.dir/rule
 # codegen rule for target.
 CMakeFiles/cryptum.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/cryptum.dir/build.make CMakeFiles/cryptum.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=5,6 "Finished codegen for target cryptum"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=7,8 "Finished codegen for target cryptum"
 .PHONY : CMakeFiles/cryptum.dir/codegen
 
 # clean rule for target.
@@ -190,7 +330,7 @@ CMakeFiles/cryptum.dir/clean:
 CMakeFiles/cryptotests.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/cryptotests.dir/build.make CMakeFiles/cryptotests.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/cryptotests.dir/build.make CMakeFiles/cryptotests.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=3,4 "Built target cryptotests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=5,6 "Built target cryptotests"
 .PHONY : CMakeFiles/cryptotests.dir/all
 
 # Build rule for subdir invocation for target.
@@ -207,7 +347,7 @@ cryptotests: CMakeFiles/cryptotests.dir/rule
 # codegen rule for target.
 CMakeFiles/cryptotests.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/cryptotests.dir/build.make CMakeFiles/cryptotests.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=3,4 "Finished codegen for target cryptotests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles --progress-num=5,6 "Finished codegen for target cryptotests"
 .PHONY : CMakeFiles/cryptotests.dir/codegen
 
 # clean rule for target.

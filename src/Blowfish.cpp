@@ -6,7 +6,7 @@
 
 static const AlgorithmInfo BLOWFISH_INFO = {
     "blowfish",
-    16 // Дефолтный размер ключа (128 бит)
+    16 
 };
 
 static const uint32_t ORIG_P[18] = {
@@ -333,7 +333,7 @@ int decrypt(ConstBuffer key, ConstBuffer input, MutBuffer* output) {
 }
 
 extern "C" int encrypt_with_iv(ConstBuffer key, ConstBuffer iv, ConstBuffer input, MutBuffer* output) {
-    (void)iv; // Игнорируем внешний iv, так как в текущей логике Blowfish.cpp он обрабатывается внутри
+    (void)iv; 
     return encrypt(key, input, output);
 }
 
