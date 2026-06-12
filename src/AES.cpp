@@ -127,5 +127,56 @@ void AES256::encryptBlock(uint8_t* block) {
     }
 }
 
+namespace {
+    void invShiftRows(uint8_t state[4][4]) {
+        uint8_t tmp;
+        // Строка 1: сдвиг вправо на 1
+        tmp = state[1][3];
+        state[1][3] = state[1][2]; state[1][2] = state[1][1]; state[1][1] = state[1][0]; state[1][0] = tmp;
+        // Строка 2: сдвиг вправо на 2
+        tmp = state[2][0]; state[2][0] = state[2][2]; state[2][2] = tmp;
+        tmp = state[2][1]; state[2][1] = state[2][3]; state[2][3] = tmp;
+        // Строка 3: сдвиг вправо на 3
+        tmp = state[3][0];
+        state[3][0] = state[3][1]; state[3][1] = state[3][2]; state[3][2] = state[3][3]; state[3][3] = tmp;
+    }
 
+    void invMixColumns(uint8_t state[4][4], AES256* instance) {
+        uint8_t t[4];
+        for (int c = 0; c < 4; ++c) {
+            t[0] = state[0][c]; t[1] = state[1][c]; t[2] = state[2][c]; t[3] = state[3][c];
+            // Умножение на обратную матрицу AES (коэффициенты 14, 11, 13, 9)
+            state[0][c] = instance->encryptBlock_gmul(t[0], 14) ^ instance->encryptBlock_gmul(t[1], 11) ^ instance->encryptBlock_gmul(t[2], 13) ^ instance->encryptBlock_gmul(t[3], 9);
+            state[1][c] = instance->encryptBlock_gmul(t[0], 9)  ^ instance->encryptBlock_gmul(t[1], 14) ^ instance->encryptBlock_gmul(t[2], 11) ^ instance->encryptBlock_gmul(t[3], 13);
+            state[2][c] = instance->encryptBlock_gmul(t[0], 13) ^ instance->encryptBlock_gmul(t[1], 9)  ^ instance->encryptBlock_gmul(t[2], 14) ^ instance->encryptBlock_gmul(t[3], 11);
+            state[3][c] = instance->encryptBlock_gmul(t[0], 11) ^ instance->encryptBlock_gmul(t[1], 13) ^ instance->encryptBlock_gmul(t[2], 9)  ^ instance->encryptBlock_gmul(t[3], 14);
+        }
+    }
+}
+
+void AES256::decryptBlock(uint8_t* block) {
+    uint8_t state[4][4];
+    for (int r = 0; r < 4; ++r) {
+        for (int c = 0; c < 4; ++c) state[r][c] = block[c * 4 + r];
+    }
+
+    // Расшифрование идет в обратном порядке ключей
+    addRoundKey(state, roundKeys, Nr);
+
+    for (int round = Nr - 1; round >= 1; --round) {
+        invShiftRows(state);
+        subBytes(state, inv_sbox); // Используем инверсный SBOX!
+        addRoundKey(state, roundKeys, round);
+        invMixColumns(state, this);
+    }
+
+    // Нулевой раунд
+    invShiftRows(state);
+    subBytes(state, inv_sbox);
+    addRoundKey(state, roundKeys, 0);
+
+    for (int r = 0; r < 4; ++r) {
+        for (int c = 0; c < 4; ++c) block[c * 4 + r] = state[r][c];
+    }
+}
 
