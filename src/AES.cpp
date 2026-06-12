@@ -49,3 +49,83 @@ namespace {
         0x10000000, 0x20000000, 0x40000000, 0x80000000, 0x1B000000, 0x36000000
     };
 }
+
+// Вспомогательные функции для шифрования (внутри класса AES256)
+namespace {
+    // Внутренние методы для работы со state 4x4
+    void addRoundKey(uint8_t state[4][4], const uint8_t* roundKeys, int round) {
+        for (int r = 0; r < 4; ++r) {
+            for (int c = 0; c < 4; ++c) {
+                state[r][c] ^= roundKeys[round * 16 + c * 4 + r];
+            }
+        }
+    }
+
+    void subBytes(uint8_t state[4][4], const uint8_t* sbox) {
+        for (int r = 0; r < 4; ++r) {
+            for (int c = 0; c < 4; ++c) {
+                state[r][c] = sbox[state[r][c]];
+            }
+        }
+    }
+
+    void shiftRows(uint8_t state[4][4]) {
+        uint8_t tmp;
+        // Строка 1: сдвиг влево на 1
+        tmp = state[1][0];
+        state[1][0] = state[1][1]; state[1][1] = state[1][2]; state[1][2] = state[1][3]; state[1][3] = tmp;
+        // Строка 2: сдвиг влево на 2
+        tmp = state[2][0]; state[2][0] = state[2][2]; state[2][2] = tmp;
+        tmp = state[2][1]; state[2][1] = state[2][3]; state[2][3] = tmp;
+        // Строка 3: сдвиг влево на 3 (то же самое, что вправо на 1)
+        tmp = state[3][3];
+        state[3][3] = state[3][2]; state[3][2] = state[3][1]; state[3][1] = state[3][0]; state[3][0] = tmp;
+    }
+
+    void mixColumns(uint8_t state[4][4], AES256* instance) {
+        uint8_t t[4];
+        for (int c = 0; c < 4; ++c) {
+            t[0] = state[0][c]; t[1] = state[1][c]; t[2] = state[2][c]; t[3] = state[3][c];
+            // Умножение колонок на матрицу AES в полях Галуа
+            state[0][c] = instance->encryptBlock_gmul(t[0], 2) ^ instance->encryptBlock_gmul(t[1], 3) ^ t[2] ^ t[3];
+            state[1][c] = t[0] ^ instance->encryptBlock_gmul(t[1], 2) ^ instance->encryptBlock_gmul(t[2], 3) ^ t[3];
+            state[2][c] = t[0] ^ t[1] ^ instance->encryptBlock_gmul(t[2], 2) ^ instance->encryptBlock_gmul(t[3], 3);
+            state[3][c] = instance->encryptBlock_gmul(t[0], 3) ^ t[1] ^ t[2] ^ instance->encryptBlock_gmul(t[3], 2);
+        }
+    }
+}
+
+// Прослойка для доступа к приватному gmul из namespace
+uint8_t AES256::encryptBlock_gmul(uint8_t a, uint8_t b) { return gmul(a, b); }
+
+void AES256::encryptBlock(uint8_t* block) {
+    uint8_t state[4][4];
+    // Перекладываем одномерный массив в матрицу 4х4 (по колонкам)
+    for (int r = 0; r < 4; ++r) {
+        for (int c = 0; c < 4; ++c) state[r][c] = block[c * 4 + r];
+    }
+
+    // Раунд 0: Просто подмешиваем начальный ключ
+    addRoundKey(state, roundKeys, 0);
+
+    // Раунды с 1 по 13
+    for (int round = 1; round < Nr; ++round) {
+        subBytes(state, sbox);
+        shiftRows(state);
+        mixColumns(state, this);
+        addRoundKey(state, roundKeys, round);
+    }
+
+    // Финальный 14-й раунд (БЕЗ MixColumns)
+    subBytes(state, sbox);
+    shiftRows(state);
+    addRoundKey(state, roundKeys, Nr);
+
+    // Возвращаем матрицу обратно в исходный массив байт
+    for (int r = 0; r < 4; ++r) {
+        for (int c = 0; c < 4; ++c) block[c * 4 + r] = state[r][c];
+    }
+}
+
+
+
