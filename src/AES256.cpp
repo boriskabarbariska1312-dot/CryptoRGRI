@@ -64,7 +64,7 @@ uint8_t AES256::gmul(uint8_t a, uint8_t b) {
         if (b & 1) p ^= a;
         hi_bit_set = (a & 0x80);
         a <<= 1;
-        if (hi_bit_set) a ^= 0x1B; // Полином AES x^8 + x^4 + x^3 + x + 1
+        if (hi_bit_set) a ^= 0x1B; 
         b >>= 1;
     }
     return p;
@@ -261,4 +261,3 @@ void AES256::decryptBlock(uint8_t* block) {
         for (int c = 0; c < 4; ++c) block[c * 4 + r] = state[r][c];
     }
 }
-

@@ -2,8 +2,57 @@
 #include <iostream>
 #include <cstring>
 #include <iomanip>
+#include "crypto.h"
 
 using namespace std;
+
+
+#ifdef SHA256_PLUGIN_MODE
+
+static const AlgorithmInfo SHA256_INFO = {
+    "sha256",
+    0 // Для хэширования ключ не требуется
+};
+
+extern "C" {
+
+const AlgorithmInfo* get_algorithm_info() {
+    return &SHA256_INFO;
+}
+
+size_t get_output_size(size_t input_size, int operation_type) {
+    (void)input_size;
+    (void)operation_type;
+    return 32; // Хэш SHA-256 всегда занимает ровно 32 байта
+}
+
+int encrypt(ConstBuffer key, ConstBuffer input, MutBuffer* output) {
+    (void)key;
+    if (!output || output->size < 32) return 1;
+
+    // Вызываем основную функцию хэширования
+    std::vector<uint8_t> hash = calculate_sha256(input.data, input.size);
+    std::memcpy(output->data, hash.data(), 32);
+    output->size = 32;
+    return 0;
+}
+
+int decrypt(ConstBuffer key, ConstBuffer input, MutBuffer* output) {
+    (void)key; (void)input; (void)output;
+    // Хэш невозможно дешифровать, возвращаем код ошибки
+    return -1; 
+}
+
+int encrypt_with_iv(ConstBuffer key, ConstBuffer iv, ConstBuffer input, MutBuffer* output) {
+    (void)iv;
+    return encrypt(key, input, output);
+}
+
+}
+
+#endif // SHA256_PLUGIN_MODE
+
+
 
 namespace {
     const uint32_t K[64] = {
@@ -42,8 +91,8 @@ std::vector<uint8_t> calculate_sha256(const uint8_t* data, size_t length) {
     }
 
     std::vector<uint8_t> buffer(data, data + length);
-    buffer.push_back(0x80); // Добавляем обязательный бит '1'
-    buffer.resize(padded_len, 0x00); // Заполняем нулями
+    buffer.push_back(0x80); 
+    buffer.resize(padded_len, 0x00); 
 
     // Добавляем длину в битах (big-endian, 8 байт)
     for (int i = 7; i >= 0; --i) {
@@ -91,9 +140,6 @@ std::vector<uint8_t> calculate_sha256(const std::vector<uint8_t>& data) {
     return calculate_sha256(data.data(), data.size());
 }
 
-// БЛОК ОТЛАДКИ (Раскомментируй #define DEBUG_SHA256, чтобы протестировать)
-//
-//#define DEBUG_SHA256 
 
 #ifdef DEBUG_SHA256
 int main() {
@@ -114,6 +160,3 @@ int main() {
     return 0;
 }
 #endif
-
-
-

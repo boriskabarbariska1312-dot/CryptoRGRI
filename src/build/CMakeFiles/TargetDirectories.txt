@@ -1,5 +1,9 @@
 /Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles/gronsfeld.dir
 /Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles/atbash.dir
+/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles/rc4.dir
+/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles/blowfish.dir
+/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles/sha256.dir
+/Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles/mtproto.dir
 /Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles/cryptum.dir
 /Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles/cryptotests.dir
 /Users/timurkabilov/Desktop/CryptoRGRI/src/build/CMakeFiles/edit_cache.dir

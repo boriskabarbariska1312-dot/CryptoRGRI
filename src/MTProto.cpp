@@ -4,12 +4,11 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
-#include <iomanip>  // Для setw и setfill
-#include <string>   // Для std::string
+#include <iomanip>  
+#include <string>   
 
-using namespace std; // Чтобы не писать std:: перед cout, string и hex
+using namespace std; 
 
-// Базовые структуры (Должны быть в самом начале файла!)
 struct ConstBuffer {
     const uint8_t* data;
     size_t size;
@@ -216,8 +215,25 @@ extern "C" {
             block_num++;
         }
 
-        output->size = cipher_size;
-        cout << "=== ДЕШИФРОВАНИЕ УСПЕШНО ЗАВЕРШЕНО ===\n\n";
+        size_t actual_size = cipher_size;
+        for (size_t p = 0; p < 16; ++p) {
+            if (cipher_size < p) break;
+            size_t test_size = cipher_size - p;
+            
+            // Берем расшифрованные данные без предполагаемого паддинга
+            std::vector<uint8_t> test_data(plain_ptr, plain_ptr + test_size);
+            std::vector<uint8_t> test_hash = calculate_sha256(test_data);
+            
+            // Если хэш совпал со считанным Message Key, значит мы нашли точный размер!
+            if (std::memcmp(test_hash.data(), msg_key, 16) == 0) {
+                actual_size = test_size;
+                break;
+            }
+        }
+
+        output->size = actual_size; // Возвращаем чистый размер без паддинга
+        cout << "=== ДЕШИФРОВАНИЕ УСПЕШНО ЗАВЕРШЕНО (Реальный размер: " << actual_size << " байт) ===\n\n";
         return 0;
     }
 }
+

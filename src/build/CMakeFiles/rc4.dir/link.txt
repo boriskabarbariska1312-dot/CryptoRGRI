@@ -1,0 +1,1 @@
+/usr/bin/c++  -arch arm64 -dynamiclib -Wl,-headerpad_max_install_names -o librc4.dylib -install_name @rpath/librc4.dylib CMakeFiles/rc4.dir/RC4.cpp.o

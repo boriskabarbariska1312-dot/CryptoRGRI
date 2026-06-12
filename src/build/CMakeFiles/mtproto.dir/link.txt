@@ -1,0 +1,1 @@
+/usr/bin/c++  -arch arm64 -dynamiclib -Wl,-headerpad_max_install_names -o libmtproto.dylib -install_name @rpath/libmtproto.dylib CMakeFiles/mtproto.dir/MTProto.cpp.o CMakeFiles/mtproto.dir/AES256.cpp.o CMakeFiles/mtproto.dir/SHA256.cpp.o

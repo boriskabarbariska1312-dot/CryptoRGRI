@@ -1,0 +1,1 @@
+/usr/bin/c++  -arch arm64 -dynamiclib -Wl,-headerpad_max_install_names -o libsha256.dylib -install_name @rpath/libsha256.dylib CMakeFiles/sha256.dir/SHA256.cpp.o
