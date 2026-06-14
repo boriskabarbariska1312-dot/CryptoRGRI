@@ -4,11 +4,12 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
-#include <iomanip>  
-#include <string>   
+#include <iomanip>  // Для setw и setfill
+#include <string>   // Для std::string
 
-using namespace std; 
+using namespace std; // Чтобы не писать std:: перед cout, string и hex
 
+// Базовые структуры (Должны быть в самом начале файла!)
 struct ConstBuffer {
     const uint8_t* data;
     size_t size;
@@ -206,7 +207,7 @@ extern "C" {
             cout << "[Блок " << block_num << "] Расшифрованный текст: ";
             for(int i=0; i<16; i++) {
                 if(pt_block[i] >= 32 && pt_block[i] <= 126) cout << (char)pt_block[i];
-                else cout << "."; // Заменяем непечатные символы паддинга точкой
+                else cout << "."; 
             }
             cout << "\n";
 
@@ -215,25 +216,36 @@ extern "C" {
             block_num++;
         }
 
-        size_t actual_size = cipher_size;
-        for (size_t p = 0; p < 16; ++p) {
-            if (cipher_size < p) break;
-            size_t test_size = cipher_size - p;
+        cout << "--- Валидация целостности данных (Проверка MsgKey) ---\n";
+        
+        // Перебираем возможный размер оригинального payload (с учетом паддинга от 0 до 15 байт)
+        bool auth_success = false;
+        size_t actual_payload_size = cipher_size;
+
+        for (int p_len = 0; p_len < 16; ++p_len) {
+            if (cipher_size < (size_t)p_len) break;
             
-            // Берем расшифрованные данные без предполагаемого паддинга
+            size_t test_size = cipher_size - p_len;
             std::vector<uint8_t> test_data(plain_ptr, plain_ptr + test_size);
             std::vector<uint8_t> test_hash = calculate_sha256(test_data);
-            
-            // Если хэш совпал со считанным Message Key, значит мы нашли точный размер!
+
+            // Сравниваем первые 16 байт хэша с msg_key
             if (std::memcmp(test_hash.data(), msg_key, 16) == 0) {
-                actual_size = test_size;
+                actual_payload_size = test_size;
+                auth_success = true;
                 break;
             }
         }
 
-        output->size = actual_size; // Возвращаем чистый размер без паддинга
-        cout << "=== ДЕШИФРОВАНИЕ УСПЕШНО ЗАВЕРШЕНО (Реальный размер: " << actual_size << " байт) ===\n\n";
-        return 0;
+        if (auth_success) {
+            output->size = actual_payload_size;
+            cout << "[УСПЕХ] Message Key СОВПАЛ. Данные подлинны, паддинг успешно отрезан!\n";
+            cout << "=== ДЕШИФРОВАНИЕ УСПЕШНО ЗАВЕРШЕНО ===\n\n";
+            return 0;
+        } else {
+            cout << "[ОШИБКА] КРИТИЧЕСКИЙ СБОЙ: Вычисленный Message Key не совпал с оригинальным!\n";
+            cout << "Возможные причины: неверный ключ/пароль или файл был модифицирован.\n";
+            return -2; // Возвращаем код ошибки целостности
+        }
     }
 }
-
