@@ -6,6 +6,7 @@
 #include <random>
 #include <algorithm>
 #include <stdexcept>
+#include <limits> 
 
 #if defined(_WIN32)
     #include <windows.h>
@@ -38,7 +39,6 @@ struct LibraryGuard {
             CLOSE_LIB(handle);
         }
     }
-    // Запрещаем копирование во избежание двойного освобождения ресурса
     LibraryGuard(const LibraryGuard&) = delete;
     LibraryGuard& operator=(const LibraryGuard&) = delete;
 };
@@ -56,6 +56,44 @@ void safe_clear(uint8_t* ptr, uint64_t size) {
     std::memset(ptr, 0, size);
     asm volatile("" ::: "memory");
 #endif
+}
+
+// Учебная реализация алгоритма хэширования djb2 для паролей
+// (Используем свой алгоритм, так как std::hash может отличаться при разных запусках программы)
+uint64_t simple_hash(const std::string& str) {
+    uint64_t hash = 5381;
+    for (char c : str) {
+        // Явное приведение к uint8_t предотвращает проблемы с отрицательными char
+        hash = ((hash << 5) + hash) + static_cast<uint8_t>(c); 
+    }
+    return hash;
+}
+
+// Функция авторизации согласно требованиям шаблона
+bool login() {
+    string user_login, user_password;
+
+    cout << "Введите логин: ";
+    cin >> user_login;
+    cout << "Введите пароль: ";
+    cin >> user_password;
+
+    // Очищаем буфер cin от символа переноса строки после ввода пароля
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    ifstream config_file("auth.conf");
+    if (!config_file.is_open()) {
+        cerr << "Не удалось прочитать хэш пароля\n";
+        return false;
+    }
+
+    string expected_login, expected_hash_str;
+    config_file >> expected_login >> expected_hash_str;
+    config_file.close();
+
+    string input_hash_str = to_string(simple_hash(user_password));
+
+    return (user_login == expected_login && input_hash_str == expected_hash_str);
 }
 
 void print_help() {
@@ -111,7 +149,6 @@ LIB_HANDLE load_crypto_library(const string& algo_name) {
 #if defined(_WIN32)
     lib_path = algo_name + LIB_EXT;
 #else
-
     lib_path = "lib" + algo_name + LIB_EXT; 
 #endif
     LIB_HANDLE handle = LOAD_LIB(lib_path);
@@ -161,6 +198,17 @@ int main(int argc, char* argv[]) {
 #if defined(_WIN32)
         SetConsoleOutputCP(CP_UTF8);
         SetConsoleCP(CP_UTF8);
+#endif
+
+        // Авторизация пользователя перед началом работы, как требует шаблон отчета
+        if (!login()) {
+            cerr << "Ошибка: Неверный логин или пароль. Программа завершает работу.\n";
+            return 1;
+        }
+
+        // Перевод стандартных потоков ввода/вывода в бинарный режим осуществляется 
+        // ТОЛЬКО ПОСЛЕ успешного логина, чтобы не сломать ввод пароля из консоли Windows
+#if defined(_WIN32)
         _setmode(_fileno(stdin), _O_BINARY);
         _setmode(_fileno(stdout), _O_BINARY);
 #endif
@@ -196,11 +244,9 @@ int main(int argc, char* argv[]) {
             throw runtime_error("Неподдерживаемый режим '" + mode_str + "'");
         }
 
- 
         LIB_HANDLE raw_handle = load_crypto_library(algo_name);
         LibraryGuard guard(raw_handle); 
         
-        // Все вызовы функций GET_FUNC теперь делаем через raw_handle
         auto get_algo_info = (const AlgorithmInfo* (*)())GET_FUNC(raw_handle, "get_algorithm_info");
         auto get_output_size_func = (size_t (*)(size_t, int))GET_FUNC(raw_handle, "get_output_size");
         auto encrypt_func = (int (*)(ConstBuffer, ConstBuffer, MutBuffer*))GET_FUNC(raw_handle, "encrypt");
@@ -209,7 +255,6 @@ int main(int argc, char* argv[]) {
         if (!get_algo_info || !get_output_size_func || !encrypt_func || !decrypt_func) {
             throw runtime_error("Некорректная библиотека: отсутствуют требуемые функции");
         }
-
 
         const AlgorithmInfo* info = get_algo_info();
         if ((mode_str == "encrypt" || mode_str == "decrypt") && key_path.empty() && info->key_size > 0) {
@@ -224,7 +269,7 @@ int main(int argc, char* argv[]) {
             vector<uint8_t> new_key(k_size);
             random_device rd; 
             
-            std::generate(new_key.begin(), new_key.end(), [&rd]() { return static_cast<uint8_t>(rd() & 0xFF); });
+            generate(new_key.begin(), new_key.end(), [&rd]() { return static_cast<uint8_t>(rd() & 0xFF); });
 
             ostream* key_out_stream = &cout;
             ofstream key_out_file;
