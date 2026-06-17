@@ -2,7 +2,13 @@
 #include <cstdint>
 #include <cstddef>
 #include <cstring>
-#include <random>
+#if defined(_WIN32)
+    #include <bcrypt.h>
+    #pragma comment(lib, "bcrypt.lib")
+    BCryptGenRandom(NULL, iv, 8, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+#else
+    #include <sys/random.h>
+#endif
 
 static const AlgorithmInfo BLOWFISH_INFO = {
     "blowfish",
@@ -205,12 +211,8 @@ int encrypt(ConstBuffer key, ConstBuffer input, MutBuffer* output) {
     uint32_t p_array[18];
     uint32_t s_box[4][256];
     blowfish_init(key.data, key.size, p_array, s_box);
-
     uint8_t iv[8];
-    std::random_device rd;
-    for (int i = 0; i < 8; ++i) {
-        iv[i] = static_cast<uint8_t>(rd() & 0xFF);
-    }
+    getrandom(iv, 8, 0);
     std::memcpy(output->data, iv, 8);
 
     uint8_t prev_block[8];
