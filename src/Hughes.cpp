@@ -1,16 +1,14 @@
-#include "crypto.h" // Подключаем наши базовые структуры
+#include "crypto.h"
 #include <iostream>
 #include <vector>
 #include <cstring>
 #include <fstream>
+#include <string>
+#include <sstream>
 
 using namespace std;
 
-// Нам необходима функция быстрого возведения
-// // Объявим её как extern, чтобы не дублировать код
-extern int64_t powerBinary(int64_t base, int64_t exp, int64_t mod, bool show_steps);
-
-// Структура ключа для Хьюза, чтобы удобно передавать все параметры через ConstBuffer key
+// Структура ключа для Хьюза внутри модуля
 struct HughesKey {
     int64_t n;
     int64_t a;
@@ -19,16 +17,44 @@ struct HughesKey {
     int64_t b_inv;
 };
 
+// Встраиваем функцию быстрого возведения в степень прямо сюда,
+// чтобы библиотека была самодостаточной и сохранялся вывод шагов.
+int64_t powerBinary(int64_t base, int64_t exp, int64_t mod, bool show_steps) {
+    int64_t res = 1;
+    base = base % mod;
+    int step = 1;
+
+    if (show_steps) {
+        cout << "   [Математика] База = " << base << ", Степень = " << exp << ", Модуль = " << mod << "\n";
+    }
+
+    while (exp > 0) {
+        int current_bit = exp % 2;
+        if (show_steps) {
+            cout << "      Итерация №" << step << ": Текущая степень = " << exp 
+                 << " (бинарный бит = " << current_bit << ")\n";
+        }
+        
+        if (exp % 2 != 0) {
+            // Используем __int128 для защиты от переполнения при умножении больших int64_t
+            res = (static_cast<__int128>(res) * base) % mod;
+        }
+        base = (static_cast<__int128>(base) * base) % mod;
+        exp = exp / 2;
+        step++;
+    }
+    return res;
+}
+
 extern "C" {
 
     const AlgorithmInfo* get_algorithm_info() {
-        static AlgorithmInfo info = { "Hughes Simulation Protocol", sizeof(HughesKey), 1 };
+        static AlgorithmInfo info = { "Hughes Simulation Protocol", sizeof(HughesKey) };
         return &info;
     }
 
     size_t get_output_size(size_t input_size, int op_type) {
-        // В схеме Хьюза каждый байт (char) превращается в int64_t (8 байт) при шифровании,
-        // чтобы избежать переполнения по модулю n.
+        // При шифровании (op_type == 1) каждый байт текста становится числом int64_t (8 байт)
         if (op_type == 1) { 
             return input_size * sizeof(int64_t); 
         } else { 
@@ -37,21 +63,40 @@ extern "C" {
     }
 
     int encrypt(ConstBuffer key, ConstBuffer input, MutBuffer* output) {
-        if (!output || !output->data || key.size < sizeof(HughesKey)) return -1;
+        if (!output || !output->data || key.size == 0) return -1;
         
-        // Извлекаем математические ключи из буфера
-        HughesKey k;
-        std::memcpy(&k, key.data, sizeof(HughesKey));
+        HughesKey k{};
+        bool key_parsed = false;
+
+        // 1. Пытаемся распарсить ключ как текстовую строку с числами (например, "3233 17 53 2753 1013")
+        string key_str(reinterpret_cast<const char*>(key.data), key.size);
+        stringstream ss(key_str);
+        if (ss >> k.n >> k.a >> k.b >> k.a_inv >> k.b_inv) {
+            key_parsed = true;
+        }
+
+        // 2. Если как текст не считалось, пробуем прочитать как чистый бинарный слепок структуры
+        if (!key_parsed && key.size >= sizeof(HughesKey)) {
+            memcpy(&k, key.data, sizeof(HughesKey));
+            key_parsed = true;
+        }
+
+        if (!key_parsed) {
+            cout << "[Ошибка Hughes] Не удалось распознать формат ключа в key.txt!\n";
+            cout << "Ожидается текст: n a b a_inv b_inv\n";
+            return -1;
+        }
 
         size_t needed_size = input.size * sizeof(int64_t);
         if (output->size < needed_size) return needed_size;
 
-        // Создаем файлы для симуляции передачи данных
-        // ofstream fileStep1("step1_alice.txt");
+        // Создаем файлы для симуляции передачи данных по шагам
+        ofstream fileStep1("step1_alice.txt");
         ofstream fileStep2("step2_bob.txt");
 
         cout << "\nЗАПУСК ФАЙЛОВОГО КРИПТОПРОТОКОЛА ХЬЮЗА (ШИФРОВАНИЕ)\n";
-        cout << "Промежуточные файлы шагов 1 и 2 будут сохранены.\n\n";
+        cout << "Используемые параметры: n=" << k.n << ", a=" << k.a << ", b=" << k.b << "\n";
+        cout << "Промежуточные файлы шагов 1 и 2 будут сохранены в текущую директорию.\n\n";
 
         const uint8_t* plain_ptr = input.data;
         int64_t* cipher_ptr = reinterpret_cast<int64_t*>(output->data);
@@ -75,11 +120,11 @@ extern "C" {
             int64_t C2 = powerBinary(C1, k.b, k.n, firstChar);
             fileStep2 << C2 << " ";
 
-            // Сохраняем C2 в выходной буфер
+            // Результат Прохода 2 отправляется в итоговый зашифрованный буфер
             cipher_ptr[i] = C2;
 
             if (firstChar) {
-                cout << "[Математика для остальных символов скрыта, чтобы не перегружать вывод]\n";
+                cout << "\n[Математика для остальных символов скрыта, чтобы не перегружать консоль]\n";
                 cout << "Идет потоковое шифрование буфера...\n";
                 firstChar = false;
             }
@@ -89,15 +134,31 @@ extern "C" {
         fileStep2.close();
         
         output->size = needed_size;
-        cout << "=== СИМУЛЯЦИЯ ХЬЮЗА: ЭТАП ШИФРОВАНИЯ ЗАВЕРШЕН ===\n\n";
+        cout << "=== СИМУЛЯЦИЯ ХЬЮЗА: ЭТАП ШИФРОВАНИЯ УСПЕШНО ЗАВЕРШЕН ===\n\n";
         return 0;
     }
 
     int decrypt(ConstBuffer key, ConstBuffer input, MutBuffer* output) {
-        if (!output || !output->data || key.size < sizeof(HughesKey)) return -1;
+        if (!output || !output->data || key.size == 0) return -1;
 
-        HughesKey k;
-        std::memcpy(&k, key.data, sizeof(HughesKey));
+        HughesKey k{};
+        bool key_parsed = false;
+
+        // Точно так же парсим ключ при дешифровании
+        string key_str(reinterpret_cast<const char*>(key.data), key.size);
+        stringstream ss(key_str);
+        if (ss >> k.n >> k.a >> k.b >> k.a_inv >> k.b_inv) {
+            key_parsed = true;
+        }
+
+        if (!key_parsed && key.size >= sizeof(HughesKey)) {
+            memcpy(&k, key.data, sizeof(HughesKey));
+            key_parsed = true;
+        }
+
+        if (!key_parsed) {
+            return -1;
+        }
 
         size_t expected_plain_size = input.size / sizeof(int64_t);
         if (output->size < expected_plain_size) return expected_plain_size;
@@ -106,6 +167,7 @@ extern "C" {
         ofstream fileFinal("decrypted.txt");
 
         cout << "\nЗАПУСК ФАЙЛОВОГО КРИПТОПРОТОКОЛА ХЬЮЗА (ДЕШИФРОВАНИЕ)\n";
+        cout << "Используемые параметры: n=" << k.n << ", a_inv=" << k.a_inv << ", b_inv=" << k.b_inv << "\n";
         cout << "Промежуточные файлы шагов 3 и финальный текст будут сохранены.\n\n";
 
         const int64_t* cipher_ptr = reinterpret_cast<const int64_t*>(input.data);
